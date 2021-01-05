@@ -1,6 +1,8 @@
 # Obsidian Plugin *YouHaveBeenStaring*
 
-This is a plugin for Obsidian (https://obsidian.md). A sweet, short and subtle reminder that you might want to take a break from staring at your screen 🧐.
+This is a plugin for Obsidian (https://obsidian.md).
+
+A sweet, short and subtle reminder that you might want to take a break from staring at your screen 🧐.
 
 It tells you in natural language in the status bar for how long your vault is open (since how long ago the plugin was loaded).
 
