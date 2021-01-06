@@ -5,13 +5,17 @@ interface YouHaveBeenStaringSettings {
     lastLoad: number;
     showTotalUptimeInStatusBar: boolean; // True, if additionally to the uptime of today the total uptime shall be displayed in the status bar
     showUptimeTodaySinceMidnight: boolean; // True, if the status bar shall display the uptime since 0:00 local time today if lastLoad is not today but on previous days, false if it shall use lastLoad as reference
+    staringText: string;
+    totalStaringText: string;
 }
 
 const SETTINGS: YouHaveBeenStaringSettings = {
     totalUptime: 0,
     lastLoad: Date.now(),
     showTotalUptimeInStatusBar: false,
-    showUptimeTodaySinceMidnight: false
+    showUptimeTodaySinceMidnight: false,
+    staringText: 'You have been staring at your vault for ',
+    totalStaringText: 'Your total staring time in this vault is '
 }
 
 export default class YouHaveBeenStaring extends Plugin {
@@ -49,7 +53,7 @@ export default class YouHaveBeenStaring extends Plugin {
                 ? moment(Date.now()).startOf('day').fromNow(true) 
                 : moment(this.settings.lastLoad).fromNow(true);
 
-            this.staringTimeStatusBar.setText(`You have been staring at your vault for ${from}`);
+            this.staringTimeStatusBar.setText(this.settings.staringText + `${from}`);
         }
     }
 
@@ -57,7 +61,7 @@ export default class YouHaveBeenStaring extends Plugin {
         if(this.settings.showTotalUptimeInStatusBar && this.settings.totalUptime > 0) {
             let moment = (window as any).moment;
             let totalStaringTime = moment.duration(this.settings.totalUptime, "milliseconds").humanize();
-            this.totalStaringTimeStatusBar.setText(`Your total staring time in this vault is ${totalStaringTime}`);
+            this.totalStaringTimeStatusBar.setText(this.settings.totalStaringText + `${totalStaringTime}`);
         }
     }
     
@@ -80,9 +84,7 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
 
     display(): void {
         let {containerEl} = this;
-
         containerEl.empty();
-
         containerEl.createEl('h3', {text: 'YouHaveBeenStaring settings'});
 
         new Setting(containerEl)
@@ -108,6 +110,32 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
                         this.plugin.saveSettings();
                     })
             );
-	}
+
+        new Setting(containerEl)
+            .setName('Status bar text of staring time')
+            .setDesc('Overrides the status bar text displaying your staring time.')
+            .addText((text) =>
+                    text
+                        .setValue(this.plugin.settings.staringText)
+                        .setPlaceholder('You have been staring at your vault for ')
+                        .onChange((value) => {
+                            this.plugin.settings.staringText = value;
+                            this.plugin.saveSettings();
+                        })
+            );
+
+        new Setting(containerEl)
+            .setName('Status bar text of total staring time')
+            .setDesc('Overrides the status bar text displaying your total staring time for this vault.')
+            .addText((text) =>
+                    text
+                        .setValue(this.plugin.settings.totalStaringText)
+                        .setPlaceholder('Your total staring time in this vault is ')
+                        .onChange((value) => {
+                            this.plugin.settings.totalStaringText = value;
+                            this.plugin.saveSettings();
+                        })
+            );
+    }
 }
 
