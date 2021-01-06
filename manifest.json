@@ -1,10 +1,10 @@
 {
 	"id": "youhavebeenstaring-plugin",
 	"name": "YouHaveBeenStaring",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"minAppVersion": "0.9.12",
 	"description": "This plugin tells you in the status bar for how long you've been staring at your obsidian vault. Well - at least how long your vault is open.",
 	"author": "Felix Almer",
-	"authorUrl": "www.almer.dev",
+	"authorUrl": "https://almer.dev",
 	"isDesktopOnly": false
 }
