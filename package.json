@@ -1,6 +1,6 @@
 {
   "name": "youhavebeenstaring-plugin",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "This plugin tells you in the status bar for how long you've been staring at your obsidian vault. Well - at least how long your vault is open.",
   "main": "main.js",
   "scripts": {

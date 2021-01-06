@@ -26,7 +26,6 @@ export default class YouHaveBeenStaring extends Plugin {
     async onload() {
         await this.loadSettings();
         this.settings.lastLoad = Date.now();
-        await this.saveSettings();
 
         this.staringTimeStatusBar = this.addStatusBarItem();
 
@@ -95,6 +94,9 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.showTotalUptimeInStatusBar)
                     .onChange((value) => {
                         this.plugin.settings.showTotalUptimeInStatusBar = value;
+                        if(!value) {
+                            this.plugin.totalStaringTimeStatusBar.empty();
+                        }
                         this.plugin.saveSettings();
                     })
             );
@@ -114,7 +116,7 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName('Status bar text of staring time')
             .setDesc('Overrides the status bar text displaying your staring time.')
-            .addText((text) =>
+            .addTextArea((text) =>
                     text
                         .setValue(this.plugin.settings.staringText)
                         .setPlaceholder('You have been staring at your vault for ')
@@ -127,7 +129,7 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName('Status bar text of total staring time')
             .setDesc('Overrides the status bar text displaying your total staring time for this vault.')
-            .addText((text) =>
+            .addTextArea((text) =>
                     text
                         .setValue(this.plugin.settings.totalStaringText)
                         .setPlaceholder('Your total staring time in this vault is ')
