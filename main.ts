@@ -16,20 +16,24 @@ const SETTINGS: YouHaveBeenStaringSettings = {
 
 export default class YouHaveBeenStaring extends Plugin {
     settings: YouHaveBeenStaringSettings;
-    statusBarItem: HTMLElement;
+    staringTimeStatusBar: HTMLElement;
+    totalStaringTimeStatusBar: HTMLElement;
 
     async onload() {
         await this.loadSettings();
         this.settings.lastLoad = Date.now();
         await this.saveSettings();
 
-        this.statusBarItem = this.addStatusBarItem();
+        this.staringTimeStatusBar = this.addStatusBarItem();
+
+        this.totalStaringTimeStatusBar = this.addStatusBarItem();
 
         this.registerInterval(window.setInterval(() => 
             {
                 this.showTimeSinceLoad(),
                 this.showTotalStaringTime(),
-                this.settings.totalUptime +=1000
+                this.settings.totalUptime +=1000,
+                this.saveSettings()
             }, 
                 1000
         ));
@@ -45,7 +49,7 @@ export default class YouHaveBeenStaring extends Plugin {
                 ? moment(Date.now()).startOf('day').fromNow(true) 
                 : moment(this.settings.lastLoad).fromNow(true);
 
-            this.statusBarItem.setText(`You have been staring at your vault for ${from}`);
+            this.staringTimeStatusBar.setText(`You have been staring at your vault for ${from}`);
         }
     }
 
@@ -53,14 +57,7 @@ export default class YouHaveBeenStaring extends Plugin {
         if(this.settings.showTotalUptimeInStatusBar && this.settings.totalUptime > 0) {
             let moment = (window as any).moment;
             let totalStaringTime = moment.duration(this.settings.totalUptime, "milliseconds").humanize();
-            this.statusBarItem.setText(`Your total staring time in this vault is ${totalStaringTime}`);
-        }
-    }
-
-    show(): void {
-        this.showTimeSinceLoad();
-        if(this.settings.showTotalUptimeInStatusBar) {
-
+            this.totalStaringTimeStatusBar.setText(`Your total staring time in this vault is ${totalStaringTime}`);
         }
     }
     
