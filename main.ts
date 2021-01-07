@@ -48,7 +48,7 @@ export default class YouHaveBeenStaring extends Plugin {
 
         this.addSettingTab(new YouHaveBeenStaringSettingsTab(this.app, this));
 
-        this.addRibbonIcon('paper-plane',  'Start/stop staring timer', () => {
+        this.addRibbonIcon('any-key',  'Start/stop staring timer', () => {
             this.timerActive = !this.timerActive;
             new Notice('Turning staring timer ' + (this.timerActive ? 'on' : 'off'));
 		});
