@@ -8,6 +8,7 @@ interface YouHaveBeenStaringSettings {
     staringText: string;
     totalStaringText: string;
     pausedText: string;
+    showStaringDurationAsNaturalText: boolean; // True if the duration shall be printed as e.g. 'an hour', false if it shall be e.g. '1:04'
 }
 
 const SETTINGS: YouHaveBeenStaringSettings = {
@@ -17,7 +18,8 @@ const SETTINGS: YouHaveBeenStaringSettings = {
     showTotalUptimeInStatusBar: false,
     staringText: 'You have been staring at your vault for ',
     totalStaringText: 'Your total staring time in this vault is ',
-    pausedText: 'Your staring counter is paused'
+    pausedText: 'Your staring counter is paused',
+    showStaringDurationAsNaturalText: true
 }
 
 export default class YouHaveBeenStaring extends Plugin {
