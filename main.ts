@@ -50,7 +50,7 @@ export default class YouHaveBeenStaring extends Plugin {
 
         this.addRibbonIcon('any-key',  'Start/stop staring counter', () => {
             this.counterActive = !this.counterActive;
-            new Notice('Turning staring timer ' + (this.counterActive ? 'on' : 'off'));
+            new Notice('Turning staring counter ' + (this.counterActive ? 'on' : 'off'));
 		});
     }
 
@@ -138,7 +138,7 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName('Status bar text when staring timer is paused')
+            .setName('Status bar text when staring counter is paused')
             .setDesc('Overrides the status bar text shown when you disabled the staring time counting.')
             .addTextArea((text) =>
                     text
