@@ -1,58 +1,68 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting} from 'obsidian';
+import { addIcon, App, Modal, Notice, Plugin, PluginSettingTab, Setting} from 'obsidian';
 
 interface YouHaveBeenStaringSettings {
-    totalUptime: number;
-    lastLoad: number;
+    totalUptime: number; // Total uptime / sum of all sessions in millis
+    lastLoad: number; // Timestamp when the last load of the plugin occurred
+    currentSessionDuration: number; // Duration of this session in millis
     showTotalUptimeInStatusBar: boolean; // True, if additionally to the uptime of today the total uptime shall be displayed in the status bar
-    showUptimeTodaySinceMidnight: boolean; // True, if the status bar shall display the uptime since 0:00 local time today if lastLoad is not today but on previous days, false if it shall use lastLoad as reference
     staringText: string;
     totalStaringText: string;
+    pausedText: string;
 }
 
 const SETTINGS: YouHaveBeenStaringSettings = {
     totalUptime: 0,
     lastLoad: Date.now(),
+    currentSessionDuration: 0,
     showTotalUptimeInStatusBar: false,
-    showUptimeTodaySinceMidnight: false,
     staringText: 'You have been staring at your vault for ',
-    totalStaringText: 'Your total staring time in this vault is '
+    totalStaringText: 'Your total staring time in this vault is ',
+    pausedText: 'Your staring counter is paused'
 }
 
 export default class YouHaveBeenStaring extends Plugin {
     settings: YouHaveBeenStaringSettings;
     staringTimeStatusBar: HTMLElement;
     totalStaringTimeStatusBar: HTMLElement;
+    counterActive: boolean
 
     async onload() {
         await this.loadSettings();
         this.settings.lastLoad = Date.now();
+        this.settings.currentSessionDuration = 0;
+        this.counterActive = true;
 
         this.staringTimeStatusBar = this.addStatusBarItem();
-
         this.totalStaringTimeStatusBar = this.addStatusBarItem();
 
         this.registerInterval(window.setInterval(() => 
             {
                 this.showTimeSinceLoad(),
                 this.showTotalStaringTime(),
-                this.settings.totalUptime +=1000,
+                this.settings.totalUptime += this.counterActive ? 1000 : 0,
+                this.settings.currentSessionDuration += this.counterActive ? 1000 : 0,
                 this.saveSettings()
             }, 
                 1000
         ));
 
         this.addSettingTab(new YouHaveBeenStaringSettingsTab(this.app, this));
+
+        this.addRibbonIcon('any-key',  'Start/stop staring counter', () => {
+            this.counterActive = !this.counterActive;
+            new Notice('Turning staring counter ' + (this.counterActive ? 'on' : 'off'));
+		});
     }
 
     showTimeSinceLoad(): void {
-        if(this.settings.lastLoad) {
+        if(this.settings.lastLoad && this.counterActive) {
             let moment = (window as any).moment;
+            let staringTime = moment.duration(this.settings.currentSessionDuration, "milliseconds").humanize();
+            this.staringTimeStatusBar.setText(this.settings.staringText + `${staringTime}`);
+        }
 
-            let from = this.settings.showUptimeTodaySinceMidnight && !moment(this.settings.lastLoad).isSame(moment(Date.now()), 'd') 
-                ? moment(Date.now()).startOf('day').fromNow(true) 
-                : moment(this.settings.lastLoad).fromNow(true);
-
-            this.staringTimeStatusBar.setText(this.settings.staringText + `${from}`);
+        if(!this.counterActive) {
+            this.staringTimeStatusBar.setText(this.settings.pausedText);
         }
     }
 
@@ -102,18 +112,6 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName('Show staring uptime since midnight')
-            .setDesc('The staring duration of today is calculated since midnight of today if the initial load timestamp of this session was on a previous day.')
-            .addToggle((toggle) =>
-                toggle
-                    .setValue(this.plugin.settings.showUptimeTodaySinceMidnight)
-                    .onChange((value) => {
-                        this.plugin.settings.showUptimeTodaySinceMidnight = value;
-                        this.plugin.saveSettings();
-                    })
-            );
-
-        new Setting(containerEl)
             .setName('Status bar text of staring time')
             .setDesc('Overrides the status bar text displaying your staring time.')
             .addTextArea((text) =>
@@ -135,6 +133,19 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
                         .setPlaceholder('Your total staring time in this vault is ')
                         .onChange((value) => {
                             this.plugin.settings.totalStaringText = value;
+                            this.plugin.saveSettings();
+                        })
+            );
+
+        new Setting(containerEl)
+            .setName('Status bar text when staring counter is paused')
+            .setDesc('Overrides the status bar text shown when you disabled the staring time counting.')
+            .addTextArea((text) =>
+                    text
+                        .setValue(this.plugin.settings.pausedText)
+                        .setPlaceholder('Your staring counter is paused')
+                        .onChange((value) => {
+                            this.plugin.settings.pausedText = value;
                             this.plugin.saveSettings();
                         })
             );
