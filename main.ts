@@ -24,13 +24,13 @@ export default class YouHaveBeenStaring extends Plugin {
     settings: YouHaveBeenStaringSettings;
     staringTimeStatusBar: HTMLElement;
     totalStaringTimeStatusBar: HTMLElement;
-    timerActive: boolean
+    counterActive: boolean
 
     async onload() {
         await this.loadSettings();
         this.settings.lastLoad = Date.now();
         this.settings.currentSessionDuration = 0;
-        this.timerActive = true;
+        this.counterActive = true;
 
         this.staringTimeStatusBar = this.addStatusBarItem();
         this.totalStaringTimeStatusBar = this.addStatusBarItem();
@@ -39,8 +39,8 @@ export default class YouHaveBeenStaring extends Plugin {
             {
                 this.showTimeSinceLoad(),
                 this.showTotalStaringTime(),
-                this.settings.totalUptime += this.timerActive ? 1000 : 0,
-                this.settings.currentSessionDuration += this.timerActive ? 1000 : 0,
+                this.settings.totalUptime += this.counterActive ? 1000 : 0,
+                this.settings.currentSessionDuration += this.counterActive ? 1000 : 0,
                 this.saveSettings()
             }, 
                 1000
@@ -48,20 +48,20 @@ export default class YouHaveBeenStaring extends Plugin {
 
         this.addSettingTab(new YouHaveBeenStaringSettingsTab(this.app, this));
 
-        this.addRibbonIcon('any-key',  'Start/stop staring timer', () => {
-            this.timerActive = !this.timerActive;
-            new Notice('Turning staring timer ' + (this.timerActive ? 'on' : 'off'));
+        this.addRibbonIcon('any-key',  'Start/stop staring counter', () => {
+            this.counterActive = !this.counterActive;
+            new Notice('Turning staring timer ' + (this.counterActive ? 'on' : 'off'));
 		});
     }
 
     showTimeSinceLoad(): void {
-        if(this.settings.lastLoad && this.timerActive) {
+        if(this.settings.lastLoad && this.counterActive) {
             let moment = (window as any).moment;
             let staringTime = moment.duration(this.settings.currentSessionDuration, "milliseconds").humanize();
             this.staringTimeStatusBar.setText(this.settings.staringText + `${staringTime}`);
         }
 
-        if(!this.timerActive) {
+        if(!this.counterActive) {
             this.staringTimeStatusBar.setText(this.settings.pausedText);
         }
     }
@@ -138,7 +138,7 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName('Status bar text when timer is paused')
+            .setName('Status bar text when staring timer is paused')
             .setDesc('Overrides the status bar text shown when you disabled the staring time counting.')
             .addTextArea((text) =>
                     text
