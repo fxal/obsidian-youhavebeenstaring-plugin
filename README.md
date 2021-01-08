@@ -11,7 +11,7 @@ A sweet, short and subtle reminder that you might want to take a break from star
 - [x] Show total staring time (measured in increments of 1s whenever the plugin is active) in the status bar
 - [x] Allow customization of display text `You have been staring at your vault for $amount` (both total and current staring duration)
 - [x] Starting and stopping of the counter with a ribbon button
-- [x] Saving of the staring time is done every 10 minutes as well as on every settings change and when unloading the plugin to prevent too many disk writes
+- [x] Saving of the staring time is done every 10 minutes as well as on every settings change, when unloading the plugin and when starting/stopping the counter via the ribbon icon to prevent too many disk writes
 
 ## TODO
 - [ ] Implement `take a break` reminders, configurable
