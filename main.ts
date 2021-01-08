@@ -40,10 +40,17 @@ export default class YouHaveBeenStaring extends Plugin {
                 this.showTimeSinceLoad(),
                 this.showTotalStaringTime(),
                 this.settings.totalUptime += this.counterActive ? 1000 : 0,
-                this.settings.currentSessionDuration += this.counterActive ? 1000 : 0,
-                this.saveSettings()
+                this.settings.currentSessionDuration += this.counterActive ? 1000 : 0
             }, 
                 1000
+        ));
+
+        // Save every 10 minutes
+        this.registerInterval(window.setInterval(() => 
+            {
+                this.saveSettings();
+            },
+            600000
         ));
 
         this.addSettingTab(new YouHaveBeenStaringSettingsTab(this.app, this));
@@ -51,7 +58,12 @@ export default class YouHaveBeenStaring extends Plugin {
         this.addRibbonIcon('any-key',  'Start/stop staring counter', () => {
             this.counterActive = !this.counterActive;
             new Notice('Turning staring counter ' + (this.counterActive ? 'on' : 'off'));
+            this.saveSettings();
 		});
+    }
+
+    onunload() {
+        this.saveSettings();
     }
 
     showTimeSinceLoad(): void {
