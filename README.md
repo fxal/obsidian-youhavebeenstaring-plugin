@@ -1,4 +1,6 @@
 # Obsidian Plugin *YouHaveBeenStaring*
+![GitHub all releases](https://img.shields.io/github/downloads/fxal/obsidian-youhavebeenstaring-plugin/total?style=flat-square)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/fxal/obsidian-youhavebeenstaring-plugin?style=flat-square)
 
 This is a plugin for Obsidian (https://obsidian.md).
 
