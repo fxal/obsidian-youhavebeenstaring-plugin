@@ -1,3 +1,4 @@
+import { settings } from 'cluster';
 import { addIcon, App, Modal, Notice, Plugin, PluginSettingTab, Setting} from 'obsidian';
 
 interface YouHaveBeenStaringSettings {
@@ -5,6 +6,7 @@ interface YouHaveBeenStaringSettings {
     lastLoad: number; // Timestamp when the last load of the plugin occurred
     currentSessionDuration: number; // Duration of this session in millis
     showTotalUptimeInStatusBar: boolean; // True, if additionally to the uptime of today the total uptime shall be displayed in the status bar
+    displayStaringTimeAsHumanString: boolean; // True if the staring time shall be presented in e.g. 10 hours instead of HH:mm:ss
     staringText: string;
     totalStaringText: string;
     pausedText: string;
@@ -15,6 +17,7 @@ const SETTINGS: YouHaveBeenStaringSettings = {
     lastLoad: Date.now(),
     currentSessionDuration: 0,
     showTotalUptimeInStatusBar: false,
+    displayStaringTimeAsHumanString: false,
     staringText: 'You have been staring at your vault for ',
     totalStaringText: 'Your total staring time in this vault is ',
     pausedText: 'Your staring counter is paused'
@@ -69,7 +72,7 @@ export default class YouHaveBeenStaring extends Plugin {
     showTimeSinceLoad(): void {
         if(this.settings.lastLoad && this.counterActive) {
             let moment = (window as any).moment;
-            let staringTime = moment.duration(this.settings.currentSessionDuration, "milliseconds").humanize();
+            let staringTime = moment.duration(this.settings.currentSessionDuration, 'milliseconds').humanize();
             this.staringTimeStatusBar.setText(this.settings.staringText + `${staringTime}`);
         }
 
@@ -81,7 +84,10 @@ export default class YouHaveBeenStaring extends Plugin {
     showTotalStaringTime(): void {
         if(this.settings.showTotalUptimeInStatusBar && this.settings.totalUptime > 0) {
             let moment = (window as any).moment;
-            let totalStaringTime = moment.duration(this.settings.totalUptime, "milliseconds").humanize();
+
+            let totalStaringTime = this.settings.displayStaringTimeAsHumanString 
+                ? moment.duration(this.settings.totalUptime, 'milliseconds').humanize()
+                : moment.duration(this.settings.totalUptime, 'milliseconds').hours() + ':' + moment.duration(this.settings.totalUptime, 'milliseconds').minutes();
             this.totalStaringTimeStatusBar.setText(this.settings.totalStaringText + `${totalStaringTime}`);
         }
     }
@@ -119,6 +125,19 @@ class YouHaveBeenStaringSettingsTab extends PluginSettingTab {
                         if(!value) {
                             this.plugin.totalStaringTimeStatusBar.empty();
                         }
+                        this.plugin.saveSettings();
+                    })
+            );
+
+        new Setting(containerEl)
+            .setName('Display total recorded staring time as human readable')
+            .setDesc('The recorded staring time is shown as text, such as \'10 hours\'. Turning this off will show the total recorded time in HH:mm fashion.')
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.settings.displayStaringTimeAsHumanString)
+                    .onChange((value) => {
+                        this.plugin.settings.displayStaringTimeAsHumanString = value;
+                        this.plugin.showTotalStaringTime();
                         this.plugin.saveSettings();
                     })
             );
