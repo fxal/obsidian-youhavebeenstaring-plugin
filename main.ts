@@ -17,7 +17,7 @@ const SETTINGS: YouHaveBeenStaringSettings = {
     lastLoad: Date.now(),
     currentSessionDuration: 0,
     showTotalUptimeInStatusBar: false,
-    displayStaringTimeAsHumanString: false,
+    displayStaringTimeAsHumanString: true,
     staringText: 'You have been staring at your vault for ',
     totalStaringText: 'Your total staring time in this vault is ',
     pausedText: 'Your staring counter is paused'
